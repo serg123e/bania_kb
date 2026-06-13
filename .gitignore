@@ -6,6 +6,9 @@ raw/
 log.md
 CLAUDE.md
 
+# data/pages.json собирается в CI (workflow), не коммитим
+data/
+
 # мусор
 .DS_Store
 node_modules/
