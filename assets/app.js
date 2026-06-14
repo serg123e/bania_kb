@@ -33,10 +33,10 @@
   menuBtn.addEventListener("click", () => sidebar.classList.toggle("open"));
 
   // ── утилиты ──────────────────────────────────────────────────────────────
-  const escapeHtml = (s) => s.replace(/[&<>"]/g, (c) =>
+  const escapeHtml = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, (c) =>
     ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-  const plain = (md) => md
+  const plain = (md) => (md || "")
     .replace(/<[^>]+>/g, " ")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/[#>*`_|]/g, " ")
@@ -68,7 +68,7 @@
       searchOptions: { boost: { title: 3, tags: 2 }, prefix: true, fuzzy: 0.2 },
     });
     state.mini.addAll(state.pages.map((p) => ({
-      id: p.slug, title: p.title, tags: (p.tags || []).join(" "),
+      id: p.slug, slug: p.slug, title: p.title, tags: (p.tags || []).join(" "),
       text: plain(p.md), category: p.category, type: p.type,
     })));
 
@@ -118,6 +118,7 @@
     const hash = decodeURIComponent(location.hash || "");
     const m = hash.match(/^#\/p\/(.+)$/);
     if (m) renderPage(m[1]);
+    else if (hash === "#/all") renderAll();
     else renderHome();
     window.scrollTo(0, 0);
   }
@@ -132,22 +133,45 @@
       const items = show.map((p) =>
         `<li><a href="#/p/${encodeURIComponent(p.slug)}">${escapeHtml(p.title)}</a></li>`).join("");
       const more = pages.length > show.length
-        ? `<div class="more">…ещё ${pages.length - show.length}</div>` : "";
+        ? `<div class="more"><a href="#/all">…ещё ${pages.length - show.length} →</a></div>` : "";
       return `<div class="home-card">
         <h3>${cat.label}</h3>
         <div class="c-count">${pages.length} стр.</div>
         <ul>${items}</ul>${more}</div>`;
     }).join("");
 
+    const total = state.pages.length;
     main.innerHTML = `<div class="inner">
       <div class="hero">
         <h1>♨ База знаний о бане</h1>
         <p>Персональная вики по материалам банных конференций: коллективное парение,
         женская и мужская баня, этика и травмоинформированность, техники, мастера и места.
         Связи между страницами — через <span class="muted">[[вики-ссылки]]</span>.
-        Начни с поиска вверху или выбери раздел.</p>
+        Начни с поиска вверху, открой <a href="#/all">полный каталог (${total} стр.)</a> или выбери раздел.</p>
       </div>
       <div class="home-grid">${cards}</div>
+    </div>`;
+  }
+
+  function renderAll() {
+    setActiveNav(null);
+    const blocks = state.categories.map((cat) => {
+      const pages = state.pages
+        .filter((p) => p.category === cat.key)
+        .sort((a, b) => a.title.localeCompare(b.title, "ru"));
+      const items = pages.map((p) =>
+        `<li><a href="#/p/${encodeURIComponent(p.slug)}">${escapeHtml(p.title)}</a>` +
+        `${p.type ? ` <span class="muted">· ${escapeHtml(p.type)}</span>` : ""}</li>`).join("");
+      return `<section class="all-cat">
+        <h2>${cat.label} <span class="c-count">(${pages.length})</span></h2>
+        <ul class="all-list">${items}</ul></section>`;
+    }).join("");
+
+    main.innerHTML = `<div class="inner">
+      <div class="crumb"><a href="#/">Главная</a> / Полный каталог</div>
+      <h1>Полный каталог (${state.pages.length} стр.)</h1>
+      <p class="muted">Все страницы вики по категориям. Для поиска используй строку вверху или <kbd>/</kbd>.</p>
+      ${blocks}
     </div>`;
   }
 

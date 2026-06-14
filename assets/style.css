@@ -154,6 +154,15 @@ a:hover { text-decoration: underline; }
 .home-card li { margin: 3px 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .home-card .more { font-size: 13px; color: var(--text-dim); }
 
+/* полный каталог */
+.all-cat { margin: 26px 0; }
+.all-cat h2 { font-size: 20px; margin: 0 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+.all-list { columns: 2; column-gap: 30px; list-style: none; padding: 0; margin: 0; }
+.all-list li { break-inside: avoid; padding: 2px 0; font-size: 14px; }
+@media (max-width: 640px) { .all-list { columns: 1; } }
+.home-card .more a { color: var(--accent); font-weight: 600; }
+kbd { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; font-size: 12px; font-family: inherit; }
+
 .muted { color: var(--text-dim); }
 mark { background: var(--accent-soft); color: inherit; padding: 0 1px; border-radius: 3px; }
 
